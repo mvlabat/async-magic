@@ -1,7 +1,7 @@
 use std::io;
 use std::str;
 use bytes::BytesMut;
-use tokio_io::codec::{Encoder, Decoder};
+use tokio_io::codec::{Decoder, Encoder};
 
 pub struct NumberCodec;
 
@@ -18,12 +18,17 @@ impl Decoder for NumberCodec {
             let line = buf.split_to(i);
             buf.clear();
 
-            match str::from_utf8(&line) {
+            let result = match str::from_utf8(&line) {
                 Ok(s) => Ok(s.to_string()),
-                Err(_) => Err(decode_error("invalid number (couldn't parse as  UTF-8 string)")),
+                Err(_) => Err(decode_error(
+                    "invalid number (couldn't parse as  UTF-8 string)",
+                )),
             }.and_then(|line| {
-                line.trim().parse::<u64>().map_err(|_| decode_error("invalid number"))
-            }).map(|number| Some(number))
+                line.trim()
+                    .parse::<u64>()
+                    .map_err(|_| decode_error("invalid number"))
+            });
+            result.map(Some)
         } else {
             Ok(None)
         }
