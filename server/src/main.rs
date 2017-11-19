@@ -24,5 +24,7 @@ fn main() {
     let address = config.address.parse().unwrap();
     let server = TcpServer::new(proto::LineProto, address);
     let pool = CpuPool::new(config.threads);
-    server.serve(move || Ok(service::TimeoutService::new(pool.clone(), config.timeout)));
+    server.serve(move || {
+        Ok(service::TimeoutService::new(pool.clone(), config.timeout))
+    });
 }
