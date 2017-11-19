@@ -12,7 +12,7 @@ impl<T: AsyncRead + AsyncWrite + 'static> ServerProto<T> for LineProto {
     type Request = u64;
 
     // For this protocol style, `Response` matches the `Item` type of the codec's `Encoder`
-    type Response = u64;
+    type Response = Option<u64>;
 
     // A bit of boilerplate to hook in the codec:
     type Transport = Framed<T, NumberCodec>;

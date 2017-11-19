@@ -6,14 +6,14 @@ use tokio_io::codec::{Encoder, Decoder};
 pub struct NumberCodec;
 
 fn decode_error(message: &'static str) -> io::Error {
-    io::Error::new(io::ErrorKind::Other, message)
+    io::Error::new(io::ErrorKind::InvalidData, message)
 }
 
 impl Decoder for NumberCodec {
     type Item = u64;
     type Error = io::Error;
 
-    fn decode(&mut self, buf: &mut BytesMut) -> io::Result<Option<u64>> {
+    fn decode(&mut self, buf: &mut BytesMut) -> io::Result<Option<Self::Item>> {
         if let Some(i) = buf.iter().position(|&b| b == b'\n') {
             let line = buf.split_to(i);
             buf.clear();
@@ -31,11 +31,15 @@ impl Decoder for NumberCodec {
 }
 
 impl Encoder for NumberCodec {
-    type Item = u64;
+    type Item = Option<u64>;
     type Error = io::Error;
 
-    fn encode(&mut self, number: u64, buf: &mut BytesMut) -> io::Result<()> {
-        buf.extend(number.to_string().as_bytes());
+    fn encode(&mut self, item: Self::Item, buf: &mut BytesMut) -> io::Result<()> {
+        let response = match item {
+            Some(number) => number.to_string(),
+            None => String::from("error: timeout"),
+        };
+        buf.extend(response.as_bytes());
         buf.extend(b"\n");
         Ok(())
     }
