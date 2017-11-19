@@ -12,11 +12,11 @@ pub struct TimeoutService {
 }
 
 impl TimeoutService {
-    pub fn new(pool: CpuPool) -> TimeoutService {
+    pub fn new(pool: CpuPool, timeout: u64) -> TimeoutService {
         TimeoutService {
             pool,
             timer: Timer::default(),
-            delay: Duration::new(2, 0),
+            delay: Duration::new(timeout, 0),
         }
     }
 }
