@@ -29,7 +29,7 @@ I wrote my own futures for sending requests and reading the response: `SendReque
 ~~As I used the same connection for sending different requests, I had to use `sleep` between writing data to the stream,
 otherwise the server read the incoming bytes at once and treated several requests as a single one. I realize,
 this is an ugly solution, but I haven't found any other.~~<BR>
-Fixed by 6843128e91c11fdeffa06267c6dbb604a3ef3aa3
+Fixed by [6843128](https://github.com/mvlabat/async-magic/commit/6843128e91c11fdeffa06267c6dbb604a3ef3aa3)
 
 Reading server response is done with a single future too, so results of all the requests are displayed at the very end.
 (Though, they can be theoretically streamed to the stdout right at the time they are accepted.)
