@@ -32,7 +32,7 @@ impl Config {
                 Arg::with_name("threads")
                     .short("t")
                     .long("threads")
-                    .value_name("port")
+                    .value_name("threads")
                     .help("Creates a pool with the specified number of threads. Default: 2")
                     .takes_value(true),
             )
