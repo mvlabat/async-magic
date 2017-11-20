@@ -28,8 +28,12 @@ impl Future for ReadLines {
                 ref mut buf,
                 ref mut lines_read,
             } => loop {
+                // Read per one byte, and stop at \n byte,
+                // so we don't capture other response data.
                 let mut buffer: [u8; 1] = [0; 1];
                 match stream.read_exact(&mut buffer) {
+                    // If reading is blocked, we can return Async::NotReady too:
+                    // the core will poll our future again.
                     Err(ref e) if e.kind() == io::ErrorKind::WouldBlock => {
                         return Ok(Async::NotReady)
                     }
@@ -37,6 +41,7 @@ impl Future for ReadLines {
                 }
                 buf.push(buffer[0]);
 
+                // Exit the loop if all the lines are read.
                 if buffer[0] == b'\n' {
                     *lines_read += 1;
                     if *lines_read == self.lines_to_read {
@@ -47,6 +52,7 @@ impl Future for ReadLines {
             State::Empty => panic!("poll ReadLine after it's done"),
         }
 
+        // We reach this code only if all the lines are read (see the break from the loop).
         match mem::replace(&mut self.state, State::Empty) {
             State::Reading { stream, buf, .. } => Ok((stream, buf).into()),
             State::Empty => unreachable!(),

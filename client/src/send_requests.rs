@@ -23,6 +23,9 @@ impl Future for SendRequests {
 
     fn poll(&mut self) -> Poll<TcpStream, io::Error> {
         loop {
+            // We change the state to Finished only if polling write_all future returns Ready.
+            // If writing returns NotReady, then we are safe to return NotReady too:
+            // the core will poll this future again.
             self.state = match self.state {
                 State::Writing {
                     ref mut write_all_future,
@@ -35,6 +38,9 @@ impl Future for SendRequests {
                 State::Empty => panic!("poll SendRequests after it's done"),
             };
 
+            // Temporarily change the state to Empty. The previous state must be always Finished.
+            // If we have accepted all the requests responses, we can return the result
+            // and move back the TcpStream.
             self.state = match mem::replace(&mut self.state, State::Empty) {
                 State::Finished { stream } => {
                     if self.requests.is_empty() {
