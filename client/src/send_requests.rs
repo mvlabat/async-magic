@@ -53,11 +53,6 @@ impl Future for SendRequests {
                 }
                 _ => unreachable!(),
             };
-
-            // This is an ugly hack to make server think that these are separate requests.
-            use std::thread::sleep;
-            use std::time::Duration;
-            sleep(Duration::new(0, 50_000_000));
         }
     }
 }

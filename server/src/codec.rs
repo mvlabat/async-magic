@@ -16,7 +16,7 @@ impl Decoder for NumberCodec {
     fn decode(&mut self, buf: &mut BytesMut) -> io::Result<Option<Self::Item>> {
         if let Some(i) = buf.iter().position(|&b| b == b'\n') {
             let line = buf.split_to(i);
-            buf.clear();
+            buf.split_to(1);
 
             let result = match str::from_utf8(&line) {
                 Ok(s) => Ok(s.to_string()),
