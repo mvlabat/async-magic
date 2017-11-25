@@ -23,17 +23,6 @@ even if it has not started yet. The queue gets overfilled, so new upcoming tasks
 In order to fix the problem I tried to call `forget` on `CpuFuture`, but I wasn't able to get the `Timeout` error,
 that can be destructured, as it gets converted to `std::io::Error`.
 
-In order to implement the client, I used `TcpStream` and called write/read functions directly.
-I wrote my own futures for sending requests and reading the response: `SendRequests` and `ReadLines` respectively.
-
-~~As I used the same connection for sending different requests, I had to use `sleep` between writing data to the stream,
-otherwise the server read the incoming bytes at once and treated several requests as a single one. I realize,
-this is an ugly solution, but I haven't found any other.~~<BR>
-Fixed by [6843128](https://github.com/mvlabat/async-magic/commit/6843128e91c11fdeffa06267c6dbb604a3ef3aa3)
-
-Reading server response is done with a single future too, so results of all the requests are displayed at the very end.
-(Though, they can be theoretically streamed to the stdout right at the time they are accepted.)
-As we use only one tcp connection and there is no other way to distinguish different requests,
-I saw it as the only way to implement reading the response.
+In order to implement the client, I used `TcpStream` and Sink-Stream pair. Sending requests is done with consuming custom `RequestsStream` with the sink.
 
 For parsing command line arguments I used `clap` crate.
