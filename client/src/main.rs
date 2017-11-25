@@ -50,7 +50,7 @@ fn main() {
     let response = send_requests.and_then(|(_writer, reader)| {
         let mut n = 0;
         reader.for_each(move |response| {
-            println!("{}", response.serialize());
+            println!("{} {}", n, response.serialize());
 
             // If all the requests are processed, drop out with the error,
             // which is processed by Core.
