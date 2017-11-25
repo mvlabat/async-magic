@@ -1,10 +1,10 @@
 [package]
 name = "client"
 version = "0.1.0"
-publish = false
-workspace = ".."
+authors = ["mvlabat <mvlabat@gmail.com>"]
 
 [dependencies]
+server = { path = "../server", version = "0.1.0" }
 rand = "^0.3"
 tokio-core = "^0.1"
 tokio-io = "^0.1"
