@@ -32,13 +32,9 @@ fn main() {
     let max = config.max;
     let mut rand = || random.gen_range(min, max);
 
-    let requests_data = {
-        let mut data = Vec::new();
-        for _ in 0..config.requests {
-            data.push(server::Request::Number(rand()));
-        }
-        data
-    };
+    let requests_data: Vec<server::Request> = (0..config.requests)
+        .map(|_| server::Request::Number(rand()))
+        .collect();
 
     let send_requests = TcpStream::connect(&addr, &handle).and_then(|stream| {
         let (writer, reader) = stream.framed(codec::Codec).split();
@@ -53,7 +49,8 @@ fn main() {
             println!("{} {}", n, response.serialize());
 
             // If all the requests are processed, drop out with the error,
-            // which is processed by Core.
+            // which is processed by the Core.
+            // (Though it would be better to shutdown the stream another way.)
             n += 1;
             if n < config.requests {
                 Ok(())

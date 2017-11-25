@@ -9,7 +9,7 @@ where
     fn deserialize(string: String) -> Option<T>;
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone)]
 pub enum Request {
     Number(u64),
 }
