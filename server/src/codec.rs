@@ -2,6 +2,7 @@ use std::io;
 use std::str;
 use bytes::BytesMut;
 use tokio_io::codec::{Decoder, Encoder};
+use serializable::{Request, Response, Serializable};
 
 pub struct NumberCodec;
 
@@ -10,7 +11,7 @@ fn decode_error(message: &'static str) -> io::Error {
 }
 
 impl Decoder for NumberCodec {
-    type Item = u64;
+    type Item = Request;
     type Error = io::Error;
 
     fn decode(&mut self, buf: &mut BytesMut) -> io::Result<Option<Self::Item>> {
@@ -21,14 +22,14 @@ impl Decoder for NumberCodec {
             let result = match str::from_utf8(&line) {
                 Ok(s) => Ok(s.to_string()),
                 Err(_) => Err(decode_error(
-                    "invalid number (couldn't parse as  UTF-8 string)",
+                    "invalid number (couldn't parse as UTF-8 string)",
                 )),
             }.and_then(|line| {
                 line.trim()
                     .parse::<u64>()
                     .map_err(|_| decode_error("invalid number"))
             });
-            result.map(Some)
+            result.map(|number| Some(Request::Number(number)))
         } else {
             Ok(None)
         }
@@ -36,15 +37,11 @@ impl Decoder for NumberCodec {
 }
 
 impl Encoder for NumberCodec {
-    type Item = Option<u64>;
+    type Item = Response;
     type Error = io::Error;
 
     fn encode(&mut self, item: Self::Item, buf: &mut BytesMut) -> io::Result<()> {
-        let response = match item {
-            Some(number) => number.to_string(),
-            None => String::from("error: timeout"),
-        };
-        buf.extend(response.as_bytes());
+        buf.extend(item.serialize().as_bytes());
         buf.extend(b"\n");
         Ok(())
     }

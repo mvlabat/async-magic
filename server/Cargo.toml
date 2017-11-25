@@ -1,8 +1,11 @@
 [package]
 name = "server"
 version = "0.1.0"
-publish = false
-workspace = ".."
+authors = ["mvlabat <mvlabat@gmail.com>"]
+
+[lib]
+name = "server"
+path = "src/serializable.rs"
 
 [dependencies]
 tokio-core = "^0.1"

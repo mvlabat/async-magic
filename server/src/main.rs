@@ -14,6 +14,8 @@ extern crate tokio_timer;
 use tokio_proto::TcpServer;
 use futures_cpupool::CpuPool;
 
+pub mod serializable;
+
 mod codec;
 mod proto;
 mod service;
